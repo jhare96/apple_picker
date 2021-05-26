@@ -6,7 +6,7 @@ import copy
 
 
 class ApplePicker(gym.Env):
-    def __init__(self, map_filepath='orchid.npy', num_objects=100, default_reward=0):
+    def __init__(self, map_filepath='orchid.npy', num_objects=100, default_reward=-0.1):
         super(ApplePicker, self)
         self.action_space = gym.spaces.Discrete(4)
         self.grid = (np.load(Path(__file__).parent / f'maps/{map_filepath}') * 255).astype(np.uint8)
