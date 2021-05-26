@@ -11,7 +11,7 @@ The goal is for the agent to collect all the apples in as few steps a possible
 
 # Game versions
 1. 'ApplePicker-v0' the agent start location and object locations are changed upon each episode i.e. when you call env.reset()  
-2. 'ApplePickerDeterministic-v0' the agent and start locations are fixed for that particular enviroment instance
+2. 'ApplePickerDeterministic-v0' the agent and object locations are fixed for that particular enviroment instance
 
 # Environment arguments
 * **num_objects**: number of apples spawned after every reset (default 100)  
