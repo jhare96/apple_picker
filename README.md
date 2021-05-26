@@ -18,7 +18,7 @@ The goal is for the agent to collect all the apples in as few steps a possible
 * **default_reward**: change the reward the agent receives after every step (default -0.1)
 
 
-## Image space
+# Image space
 produces a RGB numpy array of shape 84x84x3 for the default orchid map.  
 * 1st or red channel represents the agent location.   
 * 2nd or green channel represents the locations of the apples that need picking.  
