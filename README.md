@@ -2,7 +2,9 @@
 A computationally cheap Atari-style gym environment for a grid-world version of the travelling salesman problem  
 
 
-[logo]: https://github.com/jhare96/apple_picker/apple_picker/orchid_example.png
+<p align="center">
+<img src="apple_picker/orchid_example.png" width="384" height="384">
+</p>
 
 # Objective
 The goal is for the agent to collect all the apples in as few steps a possible  
