@@ -1,3 +1,4 @@
+from os import replace
 import gym
 import numpy as np
 import random
@@ -6,10 +7,11 @@ import copy
 
 
 class ApplePicker(gym.Env):
-    def __init__(self, map_filepath='orchid.npy', num_objects=100, default_reward=0):
+    def __init__(self, num_objects=100, default_reward=-0.01, map_filepath='orchid.npy'):
         super(ApplePicker, self)
         self.action_space = gym.spaces.Discrete(4)
         self._grid = (np.load(Path(__file__).parent / f'maps/{map_filepath}') * 255).astype(np.uint8)
+        self.back_ground = np.argwhere(np.all(self._grid == (0,0,0), axis=-1))
         self.state = self._grid.copy()
         self.item_locs = {}
         self.nobjects = num_objects
@@ -18,30 +20,22 @@ class ApplePicker(gym.Env):
         self.def_reward = default_reward
         self.max_row = self._grid.shape[0]-1
         self.max_col = self._grid.shape[1]-1
-        print(self._grid.dtype)
+        
 
     def rand_loc(self):
         while True:
-            x = np.random.randint(0, high=self._grid.shape[0])
-            y = np.random.randint(0, high=self._grid.shape[1])
-            if self._grid[x,y,2] == 0:
+            x, y = random.choice(self.back_ground)
+            if tuple(self._grid[x,y]) == (0,0,0):
                 return x,y
 
     def generate_random_locs(self, num_objects):
-        objects = 0
-        while objects < num_objects:
-            x, y = self.rand_loc()
+        locs = random.sample(self.back_ground.tolist(), k=num_objects)
+        for x, y in locs:
             if x in self.item_locs:
-                if y in self.item_locs:
-                    pass
-                else:
-                    self.item_locs[x][y] = 1
-                    objects += 1
-                    self.state[x,y,1] = 255
+                self.item_locs[x][y] = 1
             else:
                 self.item_locs[x] = {y:1}
-                objects += 1
-                self.state[x,y,1] = 255
+            self.state[x,y,1] = 255
     
     def step(self, action):
         if action > 3:
@@ -66,12 +60,11 @@ class ApplePicker(gym.Env):
             except KeyError:
                 pass
 
-           # self.agent_loc = next_agent_loc
             self.update_state(next_agent_loc)
 
         info = {}
         done = True if len(self.item_locs) == 0 else False
-        return self.state, reward, done, info
+        return self.state.copy(), reward, done, info
         
     def update_state(self, next_agent_loc):
         row, column = self.agent_loc
@@ -91,10 +84,11 @@ class ApplePicker(gym.Env):
 
 
 class ApplePickerDeterministic(ApplePicker):
-    def __init__(self, num_objects=20, default_reward=0, map_filepath='orchid.npy'):
+    def __init__(self, num_objects=100, default_reward=-0.01, map_filepath='orchid.npy'):
         super(ApplePicker, self)
         self.action_space = gym.spaces.Discrete(4)
         self._grid = (np.load(Path(__file__).parent / f'maps/{map_filepath}') * 255).astype(np.uint8)
+        self.back_ground = np.argwhere(np.all(self._grid == (0,0,0), axis=-1))
         self.max_row = self._grid.shape[0]-1
         self.max_col = self._grid.shape[1]-1
         self.state = self._grid.copy()
@@ -106,6 +100,11 @@ class ApplePickerDeterministic(ApplePicker):
         self.def_reward = default_reward
         self.item_locs_master = copy.deepcopy(self.item_locs)
         self.reset()
+
+    def set_locs(self, item_locs, start_loc):
+        self.item_locs_master = copy.deepcopy(item_locs)
+        self.start_loc = copy.deepcopy(start_loc)
+        return self.reset()
 
     def _draw_apples(self):
         for row, columns in self.item_locs.items():
